@@ -1,0 +1,46 @@
+info:
+  description: ChatGPT plugin for local Gode Mode
+  title: ChatGPTGodeMode
+  version: v1
+openapi: 3.0.1
+paths:
+  /api/executeCommand:
+    post:
+      description: This endpoint allows users to execute arbitrary shell commands.
+        Note, 'git push' is not available through this endpoint due to authentication
+        requirements.
+      operationId: executeCommand
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                command:
+                  description: The shell command to execute.
+                  type: string
+              required:
+              - command
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: A message indicating the success of the command execution.
+                    type: string
+                  output:
+                    description: The output of the executed command.
+                    type: string
+                type: object
+          description: Command executed successfully.
+        '400':
+          description: Bad request (e.g., missing command parameter).
+        '500':
+          description: Internal server error (e.g., error executing command).
+      summary: Execute a shell command - from git commands to running code, listing
+        files, or anything else that's possible to do through a shell command.
+servers:
+- url: http://localhost:3000

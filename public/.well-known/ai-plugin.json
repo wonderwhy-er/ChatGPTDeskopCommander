@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "GodMode",
+  "name_for_model": "GodeMode",
+  "description_for_human": "GotMode is a an assistant that can communicate with local terminal and browser and execute code in both",
+  "description_for_model": "GotMode is a an assistant that can communicate with local terminal and browser and execute code in both",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:3000/openapi.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "http://localhost:3000/img.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "http://www.example.com/legal"
+}

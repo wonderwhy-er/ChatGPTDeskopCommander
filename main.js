@@ -1,6 +1,14 @@
 // Modules to control application life and create native browser window
+const terminalHandler = require("./api/terminal");
+
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
+const express = require('express');
+const http = require('http');
+
+require('electron-reload')(__dirname, {
+  electron: path.join(__dirname, 'node_modules', '.bin', 'electron')
+});
 
 function createWindow () {
   // Create the browser window.
@@ -13,8 +21,10 @@ function createWindow () {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
-
+  //mainWindow.loadFile('index.html')
+  mainWindow.loadURL('https://chat.openai.com/');
+  mainWindow.webContents.openDevTools();
+  mainWindow.maximize();
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 }
@@ -41,3 +51,33 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Set up Express server
+const expressApp = express();
+const server = http.createServer(expressApp);
+expressApp.use(express.json());
+expressApp.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://chat.openai.com');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  res.setHeader('Access-Control-Allow-Headers', '*'); // Add allowed headers
+
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+expressApp.get('/', (req, res) => {
+  res.send('Hello World');
+});
+
+expressApp.options('*', (req, res) => {
+  res.status(200).send();
+});
+expressApp.post('/api/executeCommand', terminalHandler);
+
+expressApp.use(express.static(path.join(__dirname, 'public')));
+
+server.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
