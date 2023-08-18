@@ -7,8 +7,6 @@ paths:
   /api/executeCommand:
     post:
       description: This endpoint allows users to execute arbitrary shell commands.
-        Note, 'git push' is not available through this endpoint due to authentication
-        requirements.
       operationId: executeCommand
       requestBody:
         content:
@@ -42,5 +40,40 @@ paths:
           description: Internal server error (e.g., error executing command).
       summary: Execute a shell command - from git commands to running code, listing
         files, or anything else that's possible to do through a shell command.
+  /api/executeJavaScript:
+    post:
+      description: This endpoint allows users to execute arbitrary JavaScript on currently open web page.
+      operationId: executeJavaScript
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                code:
+                  description: JavaScript code to be executed inside of the page
+                  type: string
+              required:
+                - code
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: A message indicating the success of the code execution.
+                    type: string
+                  output:
+                    description: The console output of the executed javascript or encountered errors
+                    type: string
+                type: object
+          description: Code executed successfully.
+        '400':
+          description: Bad request (e.g., missing command parameter).
+        '500':
+          description: Internal server error (e.g., error executing command).
+      summary: Execute any javascript code in current web page using Electron webContents.executeJavaScript
 servers:
 - url: http://localhost:3000
