@@ -1,0 +1,3 @@
+{
+  "code": "const sideBarElement = Array.from(document.body.querySelectorAll('*')).find(el => {\n  const rect = el.getBoundingClientRect();\n  return rect.left === 0 && rect.height === window.innerHeight && rect.width < window.innerWidth / 4;\n});\nif (sideBarElement) {\n  sideBarElement.style.filter = 'blur(5px)';\n}\nsideBarElement ? true : false;"
+}

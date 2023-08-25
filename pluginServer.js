@@ -4,6 +4,7 @@ const http = require('http');
 const path = require('path');
 const terminalHandler = require('./api/terminal');
 const webHandler = require('./api/javascript');
+const commandHandler = require('./api/commandHandler');
 
 module.exports = (runCode) => {
     const expressApp = express();
@@ -27,8 +28,14 @@ module.exports = (runCode) => {
     expressApp.options('*', (req, res) => {
         res.status(200).send();
     });
-    expressApp.post('/api/executeCommand', terminalHandler);
+    expressApp.post('/api/runTerminalScript', terminalHandler);
     expressApp.post('/api/executeJavaScript', (req, res, next) => webHandler(runCode, req, res, next));
+    expressApp.post("/api/saveCommand", commandHandler.save);
+    expressApp.get("/api/listCommands", commandHandler.list);
+    expressApp.post("/api/runSavedCommand", (req, res, next) => commandHandler.run(runCode, req, res, next));
+    expressApp.get("/api/printCommand/:id", commandHandler.print);
+    expressApp.put("/api/updateCommand/:id", commandHandler.update);
+    expressApp.delete("/api/removeCommand/:id", commandHandler.remove);
 
     expressApp.use(express.static(path.join(__dirname, 'public')));
 

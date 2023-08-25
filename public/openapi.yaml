@@ -4,10 +4,59 @@ info:
   version: v1
 openapi: 3.0.1
 paths:
-  /api/executeCommand:
+  /api/listCommands:
+    get:
+      description: Get's list of previosly saved commands, always use this method to find already created commands before writting new ones
+      operationId: listCommands
+      responses:
+        200:
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: List of commands that can be used
+        500:
+          description: Internal server error (e.g., error retrieving commands).
+      summary: Retrieve a list of saved commands.
+  /api/runSavedCommand:
     post:
-      description: This endpoint allows users to execute arbitrary shell commands.
-      operationId: executeCommand
+      description: This endpoint allows users to execute previosly saved browser or terminal commands, use it after using listCommands to check for available commands
+      operationId: runSavedCommand
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  description: Name of saved command
+                  type: string
+              required:
+                - name
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: A message indicating the success of the command execution.
+                    type: string
+                  output:
+                    description: The output of the executed command.
+                    type: string
+                type: object
+          description: Command executed successfully.
+        '400':
+          description: Bad request (e.g., missing command parameter).
+        '500':
+          description: Internal server error (e.g., error executing command).
+      summary: Run previosly saved browser or terminal command
+  /api/runTerminalScript:
+    post:
+      description: This endpoint allows users to execute arbitrary shell commands, use it only after checking listCommands to check if appropriate command was created before
+      operationId: runTerminalScript
       requestBody:
         content:
           application/json:
@@ -17,7 +66,7 @@ paths:
                   description: The shell command to execute.
                   type: string
               required:
-              - command
+                - command
               type: object
         required: true
       responses:
@@ -40,9 +89,48 @@ paths:
           description: Internal server error (e.g., error executing command).
       summary: Execute a shell command - from git commands to running code, listing
         files, or anything else that's possible to do through a shell command.
+  /api/printCommand/{id}:
+    get:
+      operationId: printCommand
+      summary: Retrieve the description and content of a specific command
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The identifier (name) of the command.
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: The description and content of the command in plain text format.
+        "404":
+          description: Command not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Error message indicating the command was not found.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message.
+                  error:
+                    type: string
+                    description: Detailed error information.
   /api/executeJavaScript:
     post:
-      description: This endpoint allows users to execute arbitrary JavaScript on currently open web page.
+      description: This endpoint allows users to execute arbitrary JavaScript on currently open web page, use it only after checking listCommands to check if appropriate command was created before
       operationId: executeJavaScript
       requestBody:
         content:
@@ -50,7 +138,7 @@ paths:
             schema:
               properties:
                 code:
-                  description: JavaScript code to be executed inside of the page
+                  description: JavaScript code as single line string.
                   type: string
               required:
                 - code
@@ -75,5 +163,32 @@ paths:
         '500':
           description: Internal server error (e.g., error executing command).
       summary: Execute any javascript code in current web page using Electron webContents.executeJavaScript
+  /api/saveCommand:
+    post:
+      description: Save last run command for later reuse, provide name and description. Name should be short command like. Description should contain when this command should be used later
+      operationId: saveLastCommand
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  description: Name of the command.
+                  type: string
+                description:
+                  description: Description of what the command does and when it should be used
+                  type: string
+              required:
+              - name
+              - description
+              type: object
+        required: true
+      responses:
+        200:
+          description: Command saved successfully.
+        400:
+          description: Bad request.
+        500:
+          description: Internal server error.
 servers:
 - url: http://localhost:3000

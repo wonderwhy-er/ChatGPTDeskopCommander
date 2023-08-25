@@ -1,3 +1,5 @@
+const {lastCommand} = require("./lastCommand");
+
 function handler(runJavaScript, req, res) {
     console.log('execute JavaScript');
 
@@ -12,9 +14,12 @@ function handler(runJavaScript, req, res) {
             return res.status(400).json({ message: 'Code parameter is required.' });
         }
 
+        console.log('running javascript:' + code);
         runJavaScript(code, (log) => {
             console.log(`Command executed successfully. Output: ${log}`); // Log output to console
-            return res.status(200).json({ message: 'Command executed with such log:', output: log });
+            lastCommand.type = 'browser';
+            lastCommand.body = req.body;
+            return res.status(200).send(JSON.stringify({ message: 'Command executed with such log:', output: log }));
         });
     } else {
         res.status(405).json({ message: 'Method not allowed. Please use POST.' });

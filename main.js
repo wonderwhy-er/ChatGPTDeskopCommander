@@ -37,9 +37,11 @@ function createWindow() {
       const result = await mainWindow.webContents.executeJavaScript(code);
       log.push('Execution finished with result: ' + result);
     } catch (e) {
+      console.log(e);
       log.push('Execution failed with error: ' + e.message);
     }
-    callback(log.join('\n'));
+    console.log(log);
+    callback(log);
     mainWindow.webContents.removeListener('console-message', handler);
   });
 }

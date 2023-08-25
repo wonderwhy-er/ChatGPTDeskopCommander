@@ -1,0 +1,1 @@
+blurLeftSidebar - Apply a blur effect to a sidebar element on the left side of the browser that takes full height and less than a quarter of the width. - (browser)
