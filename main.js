@@ -1,8 +1,10 @@
-// Modules to control application life and create native browser window
+
+
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
 const startServer = require('./pluginServer.js');
+const {registerPluginIfNeeded} = require("./browser-context-scripts/registerChatGPTPluginScript");
 
 function levelToName(level) {
   if(level === 0) return 'Log: ';
@@ -24,6 +26,12 @@ function createWindow() {
   });
 
   mainWindow.loadURL('https://chat.openai.com/');
+  mainWindow.webContents.on('did-finish-load', async () => {
+    const code = registerPluginIfNeeded.toString() + '\nregisterPluginIfNeeded();';
+    console.log('loaded', code);
+    const res = await mainWindow.webContents.executeJavaScript(code);
+    console.log('plugin registered', res);
+  });
   mainWindow.webContents.openDevTools();
   mainWindow.maximize();
   startServer(async (code, callback) => {
