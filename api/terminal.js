@@ -1,6 +1,9 @@
 const {lastCommand} = require("./lastCommand");
-const {saveLastCommand} = require("./commandHandler");
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
+
+// Create a persistent shell
+const shell = spawn('sh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+const delimiter = 'COMMAND_FINISHED_DELIMITER';
 
 function handler(req, res) {
     console.log('execute command');
@@ -20,22 +23,38 @@ function handler(req, res) {
             return res.status(400).json({ message: 'Command parameter is required.' });
         }
 
-        exec(`${command}`, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error executing command: ${error.message}`); // Log error to console
-                return res.status(500).json({ message: `Error executing command: ${error.message}` });
+        let output = '';
+        const getOutput = (data) => {
+            output += data;
+            console.log('data', data)
+            if (output.includes(delimiter)) {
+                console.log('delimeter found');
+                // Remove the delimiter from the output
+                output = output.replace(delimiter, '');
+                processOutput(output);
             }
+        };
+        shell.stdout.on('data', getOutput);
+        const getError  = (data) => {
+            output += data;
+        };
+        shell.stderr.on('data', getError);
+
+        function processOutput(output) {
             lastCommand.type = 'terminal';
             lastCommand.body = req.body;
-            console.log(`Command executed successfully. Output: ${stdout || stderr}`); // Log output to console
-            let output = stdout || stderr;
-            if(output.length < 4097) {
-                return res.status(200).json({ message: 'Command executed successfully.', output  });
+            console.log(`Command executed successfully. Output: ${output}`);
+            shell.stdout.removeListener('data', getOutput);
+            shell.stderr.removeListener('data', getError);
+            if (output.length < 4097) {
+                return res.status(200).json({ message: 'Command executed successfully.', output });
             } else {
-                return res.status(200).json({ message: 'Command executed successfully. But size is too big, returning 3900 first symbols', output: output.substr(0, 3900)  });
+                return res.status(200).json({ message: 'Command executed successfully. But size is too big, returning 3900 first symbols', output: output.substr(0, 3900) });
             }
+        }
 
-        });
+        // Append the delimiter to the command
+        shell.stdin.write(`${command}; echo ${delimiter}\n`);
     } else {
         res.status(405).json({ message: 'Method not allowed. Please use POST.' });
     }
