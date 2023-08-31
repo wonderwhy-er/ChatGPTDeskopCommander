@@ -4,6 +4,30 @@ info:
   version: v1
 openapi: 3.0.1
 paths:
+  /api/openWebpage:
+    post:
+      description: This endpoint allows users to open a webpage using the specified URL.
+      operationId: openWebpage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                url:
+                  description: The URL of the webpage to open.
+                  type: string
+              required:
+                - url
+              type: object
+        required: true
+      responses:
+        '200':
+          description: Webpage opened successfully.
+        '400':
+          description: Bad request (e.g., invalid or missing URL parameter).
+        '500':
+          description: Internal server error (e.g., error opening the webpage).
+      summary: Opens a webpage using the specified URL.
   /api/listCommands:
     get:
       description: Get's list of previosly saved commands, always use this method to find already created commands before writting new ones
@@ -130,7 +154,7 @@ paths:
                     description: Detailed error information.
   /api/executeJavaScript:
     post:
-      description: This endpoint allows users to execute arbitrary JavaScript on currently open web page, use it only after checking listCommands to check if appropriate command was created before
+      description: This endpoint allows users to execute arbitrary JavaScript on currently open web page or chat, use it only after checking listCommands to check if appropriate command was created before
       operationId: executeJavaScript
       requestBody:
         content:
@@ -140,8 +164,15 @@ paths:
                 code:
                   description: JavaScript code as single line string.
                   type: string
+                target:
+                  description: Target where the JavaScript should be executed. Can be 'chat' or 'webpage'.
+                  type: string
+                  enum:
+                    - chat
+                    - webpage
               required:
                 - code
+                - target
               type: object
         required: true
       responses:
@@ -154,15 +185,15 @@ paths:
                     description: A message indicating the success of the code execution.
                     type: string
                   output:
-                    description: The console output of the executed javascript or encountered errors
+                    description: The console output of the executed javascript or encountered errors.
                     type: string
                 type: object
           description: Code executed successfully.
         '400':
-          description: Bad request (e.g., missing command parameter).
+          description: Bad request (e.g., missing command parameter or invalid target value).
         '500':
           description: Internal server error (e.g., error executing command).
-      summary: Execute any javascript code in current web page using Electron webContents.executeJavaScript
+      summary: Execute any JavaScript code either in the chat or on the current web page using Electron webContents.executeJavaScript or equivalent.
   /api/saveCommand:
     post:
       description: Save last run command for later reuse, provide name and description. Name should be short command like. Description should contain when this command should be used later

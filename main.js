@@ -1,6 +1,7 @@
 
 
 const { app, BrowserWindow } = require('electron');
+const { screen } = require('electron')
 const path = require('path');
 
 const startServer = require('./pluginServer.js');
@@ -24,6 +25,25 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     }
   });
+  let secondWindow;
+
+  function openSecondWindow(url) {
+    if (!secondWindow) {
+      const {width, height} = screen.getPrimaryDisplay().workAreaSize
+
+      secondWindow = new BrowserWindow({
+        x: width / 2,
+        y: 0,
+        width: width / 2,
+        height: height
+      });
+
+      mainWindow.setSize(width / 2, height);
+      mainWindow.setPosition(0, 0);
+    }
+    secondWindow.loadURL(url);
+    return 'page loading'
+  }
 
   mainWindow.loadURL('https://chat.openai.com/');
   mainWindow.webContents.on('did-finish-load', async () => {
@@ -34,15 +54,27 @@ function createWindow() {
   });
   mainWindow.webContents.openDevTools();
   mainWindow.maximize();
-  startServer(async (code, callback) => {
+  startServer(async (code, callback, target) => {
     const log = [];
+    let window;
+    if (target === 'chat') {
+      window = mainWindow;
+    } else if (target === 'webpage') {
+      window = secondWindow;
+      if (!window) {
+        callback('Error, no web page was opened, open web page first');
+      }
+    } else {
+      callback('Unknown target');
+      return;
+    }
     const handler = (event, level, message, line, sourceId) => {
       log.push(`${levelToName(level)} ${message} (source: ${sourceId}, line: ${line})`);
     }
-    mainWindow.webContents.on('console-message', handler);
+    window.webContents.on('console-message', handler);
 
     try {
-      const result = await mainWindow.webContents.executeJavaScript(code);
+      const result = await window.webContents.executeJavaScript(code);
       log.push('Execution finished with result: ' + result);
     } catch (e) {
       console.log(e);
@@ -50,8 +82,8 @@ function createWindow() {
     }
     console.log(log);
     callback(log);
-    mainWindow.webContents.removeListener('console-message', handler);
-  });
+    window.webContents.removeListener('console-message', handler);
+  }, openSecondWindow);
 }
 
 app.whenReady().then(() => {

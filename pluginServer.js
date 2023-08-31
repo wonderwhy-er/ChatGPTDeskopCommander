@@ -4,9 +4,10 @@ const http = require('http');
 const path = require('path');
 const terminalHandler = require('./api/terminal');
 const webHandler = require('./api/javascript');
+const openWebPageHandler = require('./api/openWebpage');
 const commandHandler = require('./api/commandHandler');
 
-module.exports = (runCode) => {
+module.exports = (runCode, openWebpage) => {
     const expressApp = express();
     const server = http.createServer(expressApp);
     expressApp.use(express.json());
@@ -17,7 +18,7 @@ module.exports = (runCode) => {
         res.setHeader('Access-Control-Allow-Private-Network', 'true');
         res.setHeader('Access-Control-Allow-Headers', '*');
 
-        console.log();
+        console.log('request', req.path);
         next();
     });
 
@@ -36,6 +37,7 @@ module.exports = (runCode) => {
     expressApp.get("/api/printCommand/:id", commandHandler.print);
     expressApp.put("/api/updateCommand/:id", commandHandler.update);
     expressApp.delete("/api/removeCommand/:id", commandHandler.remove);
+    expressApp.post("/api/openWebpage", (req, res, next) => openWebPageHandler(openWebpage, req, res, next));
 
     expressApp.use(express.static(path.join(__dirname, 'public')));
 

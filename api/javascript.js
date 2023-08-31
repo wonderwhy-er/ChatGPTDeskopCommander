@@ -9,9 +9,13 @@ function handler(runJavaScript, req, res) {
         return;
     }
     if (req.method === 'POST') {
-        const { code } = req.body;
+        const { code, target } = req.body;
         if (!code) {
             return res.status(400).json({ message: 'Code parameter is required.' });
+        }
+
+        if (!target) {
+            return res.status(400).json({ message: 'Target parameter is required.' });
         }
 
         console.log('running javascript:' + code);
@@ -20,7 +24,7 @@ function handler(runJavaScript, req, res) {
             lastCommand.type = 'browser';
             lastCommand.body = req.body;
             return res.status(200).send(JSON.stringify({ message: 'Command executed with such log:', output: log }));
-        });
+        }, target);
     } else {
         res.status(405).json({ message: 'Method not allowed. Please use POST.' });
     }
