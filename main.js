@@ -46,12 +46,14 @@ function createWindow() {
   }
 
   mainWindow.loadURL('https://chat.openai.com/');
-  mainWindow.webContents.on('did-finish-load', async () => {
+  const addScriptOnce = async () => {
     const code = registerPluginIfNeeded.toString() + '\nregisterPluginIfNeeded();';
     console.log('loaded', code);
     const res = await mainWindow.webContents.executeJavaScript(code);
     console.log('plugin registered', res);
-  });
+    mainWindow.webContents.removeListener('did-finish-load', addScriptOnce);
+  };
+  mainWindow.webContents.on('did-finish-load', addScriptOnce);
   mainWindow.webContents.openDevTools();
   mainWindow.maximize();
   startServer(async (code, callback, target) => {
