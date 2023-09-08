@@ -1,23 +1,32 @@
-# electron-quick-start
+# ChatGPT Electron or God Mode
 
-**Clone and run for a quick way to see Electron + ChatGPT in action.**
+**Empower ChatGPT with unprecedented control over your computer.**
 
-This is a minimal Electron application based on the [Quick Start Guide](https://electronjs.org/docs/latest/tutorial/quick-start) within the Electron documentation.
-But it also adds local server running minimal ChatGPT Plugin that allows running terminal commands at this point
+This project is an exploration into granting ChatGPT unparalleled capabilities on your system. Built upon the foundation of the [electron-quick-start](https://github.com/electron/electron-quick-start) repository. This application not only launches ChatGPT but also registers it as a plugin, thereby unlocking a suite of powerful features:
 
+- **Terminal Access**: ChatGPT can execute terminal commands, write files, run scripts, and more.
+- **JavaScript Execution**: ChatGPT can run JavaScript within its own context, enabling functionalities like blurring the sidebar.
+<img src="https://github.com/wonderwhy-er/ChatGPTElectron/assets/1150639/b12b4eca-b93e-43c2-99d4-98d3798017ea.png" height="500">
 
-## To Use
+- **Web Interaction**: ChatGPT can open other websites in a secondary window, extract content, and even summarize comments([example](https://chat.openai.com/share/cedd5e72-0cd0-4376-848e-58c53b84212f))
+- **Self-Modification**: ChatGPT can edit this application files, offering a unique self modification capability([example](https://chat.openai.com/share/fe383b99-7ba1-4fed-8cba-578dbff4b356))
 
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
+## Getting Started
+
+To experience this project, ensure you have [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (bundled with [npm](http://npmjs.com)) installed on your system. Then, follow these steps:
 
 ```bash
-# Clone this repository
-git clone https://github.com/wonderwhy-er/ChatGPTElectron.git
-# Go into the repository
+# Clone the repository
+git clone https://github.com/wonderwhy-er/ChatGPTElectron/
+# Navigate into the repository
 cd ChatGPTElectron
-# Install dependencies
+# Install necessary dependencies
 npm install
-# Run the app
-npm start
-# ChatGPT will open, login, go to GPT4, pluginss store, Develop your own plugin, add localhost:3000
+# Launch the application
+npm run start
 ```
+Upon launching, the application will open ChatGPT. You'll need to log in, after which the app will automatically register itself as a plugin. Once registered, you can begin your exploration.
+
+## Caution
+Please note that this is an ongoing project and is still in its early stages. As I continue to experiment and refine the application, I appreciate your patience and feedback.
+**It also uses ChatGPT Plugin API which only works for GPT4/ChatGPT Pro. Not for free version.**
