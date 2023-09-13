@@ -1,6 +1,6 @@
 
 
-const { app, BrowserWindow } = require('electron');
+const { app, session, BrowserWindow } = require('electron');
 const { screen } = require('electron')
 const path = require('path');
 
@@ -89,6 +89,29 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    if(details.url.includes('https://chat.openai.com')) console.log(details.url, details.responseHeaders['content-security-policy']);
+    if (details.responseHeaders['content-security-policy']) {
+      let csp = details.responseHeaders['content-security-policy'][0];
+      console.log(csp);
+      // Check if 'connect-src' directive exists
+      if (csp.includes('connect-src')) {
+        console.log('replace');
+        // Append 'http://localhost:3000' to the 'connect-src' directive
+        csp = csp.replace('connect-src', `connect-src http://localhost:3000`);
+      } else {
+        console.log('add');
+        // If 'connect-src' directive doesn't exist, add it
+        csp += "; connect-src http://localhost:3000";
+      }
+
+      details.responseHeaders['content-security-policy'] = [csp];
+      console.log(details.responseHeaders['content-security-policy']);
+    }
+
+    callback({ responseHeaders: details.responseHeaders });
+  });
+
   createWindow();
 
   app.on('activate', function() {
