@@ -83,10 +83,10 @@ async function registerPluginIfNeeded() {
         console.log('click on installed');
         await forElementRemoval(currentPluggin);
         const pluginBlocks = (await forElements("div.p-4.sm\\:p-6.sm\\:pt-4 > div > div.grid.grid-cols-1.gap-3.sm\\:grid-cols-2.sm\\:grid-rows-2.lg\\:grid-cols-3.xl\\:grid-cols-4 > div"));
-        const godModePlugin = pluginBlocks.filter(el => el.innerText.includes('GodMode'))[0];
-        if (godModePlugin) {
+        const Plugin = pluginBlocks.filter(el => el.innerText.includes('DesktopCommander'))[0];
+        if (Plugin) {
             console.log('firstPlugin');
-            const uninstall = godModePlugin.querySelector('button');
+            const uninstall = Plugin.querySelector('button');
             dispatch(uninstall, 'click');
             await forElementRemoval(uninstall);
             console.log('click uninstall');
@@ -104,9 +104,9 @@ async function registerPluginIfNeeded() {
         dispatch(ok, 'click');
         console.log('click ok', ok);
         await forElementRemoval(ok);
-        const godMode = (await forElements('[id^="headlessui-listbox-option-"]', 'GodMode'))[0];
-        if (godMode.getAttribute('aria-selected') === 'false') {
-            dispatch(godMode, 'click');
+        const plugin = (await forElements('[id^="headlessui-listbox-option-"]', 'DesktopCommander'))[0];
+        if (plugin.getAttribute('aria-selected') === 'false') {
+            dispatch(plugin, 'click');
         }
         await delay(100);
         const a = (await forElements('a','New chat'))[0];
