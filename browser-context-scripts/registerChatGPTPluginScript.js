@@ -65,15 +65,16 @@ async function registerPluginIfNeeded() {
 
         const button = (await forElements('.list-none .w-full:nth-child(2) .w-full.cursor-pointer'))[0];
         dispatch(button, 'click');
-        console.log('click on gpt4');
+        console.log('click on gpt4', button);
+        await delay(100);
         dispatch((await forElements('.list-none .w-full:nth-child(2) .w-full.cursor-pointer'))[0], 'mouseover');
-
+        await delay(100);
         const plugins = (await forElements('[data-radix-popper-content-wrapper] .w-full .flex .items-center:nth-child(3)'))[0];
         dispatch(plugins, 'click');
-        console.log('click on plugins');
+        console.log('click on plugins', plugins);
         const pluginSelector = (await forElements("[id^=\"headlessui-listbox-button-\"]"))[0];
         dispatch(pluginSelector, 'click');
-        console.log('click on plugin selector');
+        console.log('click on plugin selector', pluginSelector);
         const pluginMenu = (await forElements("[id^=\"headlessui-listbox-options-\"] > li:last-child"))[0];
         dispatch(pluginMenu, 'click');
         console.log('click on pluginMenu');
