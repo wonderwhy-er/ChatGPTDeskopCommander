@@ -16,7 +16,7 @@ To experience this project, ensure you have [Git](https://git-scm.com) and [Node
 
 ```bash
 # Clone the repository
-git clone https://github.com/wonderwhy-er/ChatGPTElectron/
+git clone https://github.com/wonderwhy-er/ChatGPTDeskopCommander.git
 # Navigate into the repository
 cd ChatGPTElectron
 # Install necessary dependencies
