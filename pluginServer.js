@@ -2,12 +2,12 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const terminalHandler = require('./api/terminal');
+const {terminalHandler, interruptHandler} = require('./api/terminal');
 const webHandler = require('./api/javascript');
 const openWebPageHandler = require('./api/openWebpage');
 const commandHandler = require('./api/commandHandler');
 
-module.exports = (runCode, openWebpage) => {
+module.exports = (runCode, openWebpage, port) => {
     const expressApp = express();
     const server = http.createServer(expressApp);
     expressApp.use(express.json());
@@ -39,10 +39,34 @@ module.exports = (runCode, openWebpage) => {
     expressApp.delete("/api/removeCommand/:id", commandHandler.remove);
     expressApp.post("/api/openWebpage", (req, res, next) => openWebPageHandler(openWebpage, req, res, next));
 
+    const getSentenceVectors = require("./api/sentenceVector.js");
+
+    expressApp.post("/api/getSentenceVectors", async (req, res) => {
+        const { text } = req.body;
+        if (!text) {
+            res.status(400).send({ error: "Text is required." });
+            return;
+        }
+
+        try {
+            const results = await getSentenceVectors(text);
+            console.log(results);
+            res.status(200).send(results);
+        } catch (error) {
+            res.status(500).send({ error: "Failed to process the request." });
+        }
+    });
+
+    // Add the new route for the interrupt endpoint
+    expressApp.post("/api/interrupt", interruptHandler);
+
     expressApp.use(express.static(path.join(__dirname, 'public')));
 
-    server.listen(3000, () => {
+    server.listen(port || 3000, () => {
         console.log('Server running on http://localhost:3000');
     });
     return server;
 };
+
+
+

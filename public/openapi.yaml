@@ -28,55 +28,6 @@ paths:
         '500':
           description: Internal server error (e.g., error opening the webpage).
       summary: Opens a webpage using the specified URL.
-  /api/listCommands:
-    get:
-      description: Get's list of previosly saved commands, always use this method to find already created commands before writting new ones
-      operationId: listCommands
-      responses:
-        200:
-          content:
-            text/plain:
-              schema:
-                type: string
-          description: List of commands that can be used
-        500:
-          description: Internal server error (e.g., error retrieving commands).
-      summary: Retrieve a list of saved commands.
-  /api/runSavedCommand:
-    post:
-      description: This endpoint allows users to execute previosly saved browser or terminal commands, use it after using listCommands to check for available commands
-      operationId: runSavedCommand
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                name:
-                  description: Name of saved command
-                  type: string
-              required:
-                - name
-              type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    description: A message indicating the success of the command execution.
-                    type: string
-                  output:
-                    description: The output of the executed command.
-                    type: string
-                type: object
-          description: Command executed successfully.
-        '400':
-          description: Bad request (e.g., missing command parameter).
-        '500':
-          description: Internal server error (e.g., error executing command).
-      summary: Run previosly saved browser or terminal command
   /api/runTerminalScript:
     post:
       description: This endpoint allows users to execute arbitrary shell commands, use it only after checking listCommands to check if appropriate command was created before
@@ -113,49 +64,10 @@ paths:
           description: Internal server error (e.g., error executing command).
       summary: Execute a shell command - from git commands to running code, listing
         files, or anything else that's possible to do through a shell command.
-  /api/printCommand/{id}:
-    get:
-      operationId: printCommand
-      summary: Retrieve the description and content of a specific command
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: The identifier (name) of the command.
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: The description and content of the command in plain text format.
-        "404":
-          description: Command not found
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: Error message indicating the command was not found.
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message.
-                  error:
-                    type: string
-                    description: Detailed error information.
   /api/executeJavaScript:
     post:
-      description: This endpoint allows users to execute arbitrary JavaScript on currently open web page or chat, use it only after checking listCommands to check if appropriate command was created before
-      operationId: executeJavaScript
+      description: Run arbitrary JavaScript in chat or in webpage. Use it to interact with web pages. Ensure responses are wrapped in `JSON.stringify()` or you'll get `[object Object]`. Enclose JavaScript in an anonymous self-calling function to prevent variable conflicts
+      operationId: runJavaScript
       requestBody:
         content:
           application/json:
@@ -221,5 +133,50 @@ paths:
           description: Bad request.
         500:
           description: Internal server error.
+  /api/getSentenceVectors:
+    post:
+      description: This endpoint allows users to convert text into sentences and obtain vectors for each sentence.
+      operationId: getSentenceVectors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                text:
+                  description: The text to be split into sentences and classified.
+                  type: string
+              required:
+                - text
+              type: object
+        required: true
+      responses:
+        200:
+          description: Successfully processed the text and returned sentence vectors.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sentence:
+                      type: string
+                    vector:
+                      type: object
+        400:
+          description: Bad request (e.g., missing text parameter).
+        500:
+          description: Internal server error (e.g., error processing the text).
+  /api/interrupt:
+    post:
+      description: This endpoint allows users to send a SIGINT signal to interrupt any currently running terminal command.
+      operationId: interruptCommand
+      responses:
+        200:
+          description: Command interrupted successfully.
+        405:
+          description: Method not allowed. Please use POST.
+      summary: Interrupts a running terminal command.
 servers:
-- url: http://localhost:3000
+  - url: http://localhost:3000
+

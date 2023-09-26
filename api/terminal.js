@@ -2,10 +2,11 @@ const {lastCommand} = require("./lastCommand");
 const { spawn } = require('child_process');
 
 // Create a persistent shell
-const shell = spawn('sh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+let shell = spawn('sh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
 const delimiter = 'COMMAND_FINISHED_DELIMITER';
+let output = "";
 
-function handler(req, res) {
+function terminalHandler(req, res) {
     console.log('execute command');
     res.setHeader('Access-Control-Allow-Origin', 'https://chat.openai.com');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -23,7 +24,6 @@ function handler(req, res) {
             return res.status(400).json({ message: 'Command parameter is required.' });
         }
 
-        let output = '';
         const getOutput = (data) => {
             output += data;
             console.log('data', data)
@@ -32,6 +32,7 @@ function handler(req, res) {
                 // Remove the delimiter from the output
                 output = output.replace(delimiter, '');
                 processOutput(output);
+                output = '';
             }
         };
         shell.stdout.on('data', getOutput);
@@ -60,4 +61,22 @@ function handler(req, res) {
     }
 }
 
-module.exports = handler;
+function interruptHandler(req, res) {
+    if (req.method === "POST") {
+        // Send SIGKILL to terminate the shell
+        shell.kill("SIGKILL");
+        console.log("Sent SIGKILL to terminate the command.");
+        
+        // Create a new shell instance
+        shell = spawn('sh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+        
+        // Return the latest output and then reset it
+        res.status(200).json({ message: "Command interrupted.", output });
+        output = "";
+    } else {
+        res.status(405).json({ message: "Method not allowed. Please use POST." });
+    }
+}
+
+module.exports = {interruptHandler, terminalHandler};
+
