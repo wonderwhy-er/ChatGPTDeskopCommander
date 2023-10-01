@@ -62,6 +62,7 @@ async function registerPluginIfNeeded() {
                 'view': window
             }));
         }
+        //debugger;
 
         const button = (await forElements('.list-none .w-full:nth-child(2) .w-full.cursor-pointer'))[0];
         dispatch(button, 'click');
@@ -69,7 +70,7 @@ async function registerPluginIfNeeded() {
         await delay(100);
         dispatch((await forElements('.list-none .w-full:nth-child(2) .w-full.cursor-pointer'))[0], 'mouseover');
         await delay(100);
-        const plugins = (await forElements('[data-radix-popper-content-wrapper] .w-full .flex .items-center:nth-child(3)'))[0];
+        const plugins = (await forElements('[data-radix-popper-content-wrapper] .w-full .flex .items-center', 'Plugins'))[0];
         dispatch(plugins, 'click');
         console.log('click on plugins', plugins);
         const pluginSelector = (await forElements("[id^=\"headlessui-listbox-button-\"]"))[0];
@@ -104,13 +105,14 @@ async function registerPluginIfNeeded() {
         const ok = (await forElements("[role=\"dialog\"][data-state=\"open\"] button:not([disabled])",'Install localhost plugin'))[0];
         dispatch(ok, 'click');
         console.log('click ok', ok);
+        //debugger;
         await forElementRemoval(ok);
         const plugin = (await forElements('[id^="headlessui-listbox-option-"]', 'DesktopCommander'))[0];
         if (plugin.getAttribute('aria-selected') === 'false') {
             dispatch(plugin, 'click');
         }
         await delay(100);
-        const a = (await forElements('a','New chat'))[0];
+        const a = (await forElements('a','New Chat'))[0];
         dispatch(a,'click');
 }
 
