@@ -25,8 +25,15 @@ function terminalHandler(req, res) {
         }
 
         const getOutput = (data) => {
+            let timeoutId = setTimeout(() => {
+                console.log("Command timed out.");
+                shell.stdin.write("\x03"); // Send Ctrl+C to interrupt
+                processOutput(output + "\n[INFO] Command timed out.");
+                output = "";
+            }, 10000); // 10-second timeout
             output += data;
             console.log('data', data)
+            clearTimeout(timeoutId);
             if (output.includes(delimiter)) {
                 console.log('delimeter found');
                 // Remove the delimiter from the output
